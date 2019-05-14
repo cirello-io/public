@@ -1,0 +1,43 @@
+{
+  "name": "mdlbookmarkd",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material/card": "^2.1.1",
+    "@material/react-button": "^0.12.1",
+    "@material/react-card": "^0.12.1",
+    "@material/react-icon-button": "^0.12.0",
+    "@material/react-layout-grid": "^0.12.1",
+    "@material/react-material-icon": "^0.12.0",
+    "@material/react-tab": "^0.12.0",
+    "@material/react-tab-bar": "^0.12.0",
+    "@material/react-tab-indicator": "^0.12.0",
+    "@material/react-top-app-bar": "^0.12.1",
+    "@material/react-typography": "^0.12.0",
+    "node-sass": "^4.12.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
