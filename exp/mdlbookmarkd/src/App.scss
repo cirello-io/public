@@ -1,2 +1,32 @@
 @import "@material/react-button/index.scss";
 
+
+.addNewBookmark {
+  position: fixed !important;
+  bottom: 1rem;
+  right: 1rem;
+}
+
+@media(min-width: 1024px) {
+  .addNewBookmark {
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+.drawer-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.drawer-app-content {
+  flex: auto;
+  overflow: auto;
+}
+
+.top-app-bar-fix-adjust {
+  display: flex;
+  width: 100%;
+}
