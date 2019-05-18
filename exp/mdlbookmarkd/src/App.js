@@ -28,6 +28,9 @@ import '@material/react-material-icon/index.scss';
 import '@material/react-top-app-bar/index.scss';
 import '@material/react-typography/index.scss';
 
+import { addLink } from './actions';
+import { connect } from 'react-redux'
+
 class App extends React.Component {
   state = { open: false };
 
@@ -102,6 +105,7 @@ class App extends React.Component {
         <TopAppBarFixedAdjust className='top-app-bar-fix-adjust'>
           {drawer}
           <DrawerAppContent className='drawer-app-content'>
+            <div>{this.props.linkAdded}</div>
             <Grid>
               <Row>
                 <Cell columns={4}> {card} </Cell>
@@ -152,11 +156,13 @@ class App extends React.Component {
           </DrawerAppContent>
         </TopAppBarFixedAdjust>
         <Fab className='addNewBookmark' icon={
-          <MaterialIcon hasRipple icon='add' onClick={() => console.log('add')} />
+          <MaterialIcon hasRipple icon='add' onClick={() => this.props.addLink()} />
         } />
       </div>
     );
   }
 }
 
-export default App;
+export default connect((state) => ({
+  linkAdded: state.addedLink
+}), { addLink })(App);
