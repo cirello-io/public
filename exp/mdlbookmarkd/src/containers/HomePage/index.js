@@ -67,7 +67,7 @@ class HomePage extends React.Component {
 
   markAsRead(e, id) {
     e.preventDefault()
-    this.props.markBookmarkAsRead(id)
+    this.props.dispatch({ type: 'MARK_BOOKMARK_AS_READ', id })
   }
 
   render() {
@@ -94,8 +94,8 @@ class HomePage extends React.Component {
             Delete "{this.state.delete.title.trim() !== '' ? this.state.delete.title.trim() : this.state.delete.url}" ?
           </DialogContent>
           <DialogFooter>
-            <DialogButton action='keep'>Keep</DialogButton>
-            <DialogButton action='delete' isDefault>Delete</DialogButton>
+            <DialogButton action='keep' isDefault>Keep</DialogButton>
+            <DialogButton action='delete'>Delete</DialogButton>
           </DialogFooter>
         </Dialog>
         : null}

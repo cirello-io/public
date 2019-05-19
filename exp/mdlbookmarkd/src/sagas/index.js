@@ -20,9 +20,20 @@ function* deleteBookmark(action) {
   })
 }
 
+function* markBookmarkAsRead(action) {
+  yield fetch(cfg.http + '/markBookmarkAsRead', {
+    method: 'POST',
+    body: JSON.stringify({ id: action.id }),
+    credentials: 'same-origin'
+  }).then(response => response.json()).catch((e) => {
+    console.log('cannot mark bookmark as read:', e)
+  })
+}
+
 function* linkWatcher() {
   yield takeLatest('INITIAL_LOAD_START', initialDataload)
   yield takeLeading('DELETE_BOOKMARK', deleteBookmark)
+  yield takeLeading('MARK_BOOKMARK_AS_READ', markBookmarkAsRead)
 }
 
 function* fuzzySearch(action) {
