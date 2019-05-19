@@ -31,13 +31,12 @@ function* markBookmarkAsRead(action) {
 }
 
 function* addBookmark(action) {
-  console.log(action.newBookmark)
   yield fetch(cfg.http + '/newBookmark', {
     method: 'POST',
     body: JSON.stringify(action.newBookmark),
     credentials: 'same-origin'
   }).then(response => response.json()).catch((e) => {
-    console.log('cannot mark bookmark as read:', e)
+    console.log('cannot add bookmark:', e)
   })
 }
 
