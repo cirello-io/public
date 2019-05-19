@@ -10,6 +10,6 @@ function* linkWatcher() {
 
 export default function* rootSaga() {
   yield all({
-    link:linkWatcher()
+    link: linkWatcher()
   })
 }

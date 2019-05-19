@@ -11,28 +11,17 @@ import Button from '@material/react-button';
 import { Headline6, Caption } from '@material/react-typography';
 import { Cell, Grid, Row } from '@material/react-layout-grid';
 import Fab from '@material/react-fab';
-import Drawer, {
-  DrawerContent,
-  DrawerAppContent,
-} from '@material/react-drawer';
+import Drawer, { DrawerContent, DrawerAppContent } from '@material/react-drawer';
 import List, { ListItem, ListItemText, ListItemGraphic } from '@material/react-list';
-
-import './App.scss';
-import '@material/react-button/index.scss';
-import '@material/react-card/index.scss';
-import '@material/react-drawer/index.scss';
-import '@material/react-fab/index.scss';
-import '@material/react-layout-grid/index.scss';
-import '@material/react-list/index.scss';
-import '@material/react-material-icon/index.scss';
-import '@material/react-top-app-bar/index.scss';
-import '@material/react-typography/index.scss';
-
-import { addLink } from './actions';
 import { connect } from 'react-redux'
 
+import './style.scss';
+
 class App extends React.Component {
-  state = { open: false };
+  constructor(props) {
+    super(props)
+    this.state = { open: false };
+  }
 
   render() {
     const card = <Card style={{ margin: 5 }}>
@@ -156,13 +145,15 @@ class App extends React.Component {
           </DrawerAppContent>
         </TopAppBarFixedAdjust>
         <Fab className='addNewBookmark' icon={
-          <MaterialIcon hasRipple icon='add' onClick={() => this.props.addLink()} />
+          <MaterialIcon hasRipple icon='add' onClick={() => console.log('add link')} />
         } />
       </div>
     );
   }
 }
 
-export default connect((state) => ({
+const s2p = (state) => ({
   linkAdded: state.addedLink
-}), { addLink })(App);
+})
+
+export default connect(s2p, {})(App);

@@ -12,11 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { combineReducers } from 'redux'
-import { connectRouter } from 'connected-react-router'
-import bookmarks from './bookmarks'
+const config = {
+  'local': {
+    fetchCreds: 'include',
+    websocket: 'ws://localhost:8080/ws',
+    http: 'http://localhost:8080'
+  },
+  'production': {
+    fetchCreds: 'same-origin',
+    websocket: 'wss://bookmarkd.cirello.io/ws',
+    http: 'https://bookmarkd.cirello.io'
+  }
+}
 
-export default (history) => combineReducers({
-	router: connectRouter(history),
-	bookmarks
-})
+var configuration = function () {
+  switch (window.location.hostname) {
+    case 'localhost':
+      return config['local']
+    default:
+      return config['production']
+  }
+}
+
+module.exports = configuration
