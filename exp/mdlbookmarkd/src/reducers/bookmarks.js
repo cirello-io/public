@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { folders } from '../helpers/folders'
+import { folders, folderByName } from '../helpers/folders'
 
 const initialState = {
   loaded: false,
   bookmarks: [],
   filteredBookmarks: [],
-  bookmark: null,
-  folder: folders[0],
-  selectedIndex: 0,
+  bookmark: { id: 0, title: '', url: '' },
+  folder: folderByName('bookmarks'),
   fuzzySearch: ''
 }
 
@@ -29,7 +28,6 @@ function reducer(state = initialState, action) {
     case 'SELECT_BOOKMARK_FOLDER':
       return {
         ...state,
-        selectedIndex: action.selectedIndex,
         folder: folders[action.selectedIndex],
         filteredBookmarks: folders[action.selectedIndex].filter(state.bookmarks)
       }
@@ -43,7 +41,7 @@ function reducer(state = initialState, action) {
             : state.bookmarks.slice()
         ).filter((v) => v.id !== state.bookmark.id).concat(action.bookmarks)
       }
-      ret.filteredBookmarks = folders[state.selectedIndex].filter(ret.bookmarks)
+      ret.filteredBookmarks = state.folder.filter(ret.bookmarks)
       return ret
     }
     case 'FUZZY_SEARCH': {
@@ -105,13 +103,18 @@ function reducer(state = initialState, action) {
       return {
         ...state,
         bookmarks: state.bookmarks.slice().filter((v) => v.id !== action.id),
-        filteredBookmarks: state.filteredBookmarks.slice().filter((v) => v.id !== action.id)
+        filteredBookmarks: state.folder.filter(state.filteredBookmarks.slice().filter((v) => v.id !== action.id)),
       }
     }
     case 'BOOKMARK':
       return {
         ...state,
         bookmark: action.bookmark
+      }
+    case 'RESET_BOOKMARK':
+      return {
+        ...state,
+        bookmark: { id: 0, title: '', url: '' }
       }
     default:
       return state

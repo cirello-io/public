@@ -15,8 +15,7 @@ class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      open: false,
-      selectedIndex: props.selectedIndex,
+      open: false
     }
     this.handleSelect = this.handleSelect.bind(this)
   }
@@ -36,7 +35,7 @@ class App extends React.Component {
       <DrawerContent>
         <List
           singleSelection
-          selectedIndex={this.state.selectedIndex}
+          selectedIndex={this.props.selectedIndex}
           handleSelect={this.handleSelect}
         >
           <ListItem>
@@ -96,7 +95,7 @@ export default withRouter(connect(
   (state) => {
     return {
       loaded: state.bookmarks.loaded,
-      selectedIndex: state.bookmarks.selectedIndex,
+      selectedIndex: state.bookmarks.folder.selectedIndex,
       bookmarkCount: state.bookmarks.loaded
         ? folderByName('bookmarks').filter(state.bookmarks.bookmarks).length
         : 0,

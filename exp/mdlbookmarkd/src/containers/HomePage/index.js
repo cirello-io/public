@@ -24,24 +24,22 @@ import moment from 'moment'
 import { Cell, Grid, Row } from '@material/react-layout-grid'
 import { Headline6, Caption } from '@material/react-typography'
 import { connect } from 'react-redux'
+import AddNewBookmark from '../components/AddNewBookmark'
+import { folderByName } from '../../helpers/folders'
 
 class HomePage extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      fuzzySearch: props.fuzzySearch,
+      fuzzySearch: '',
       delete: null,
-      addNewBookmark: false,
-      newBookmark: {
-        title: '',
-        url: ''
-      }
+      addNewBookmark: false
     }
     this.filterBy = this.filterBy.bind(this)
     this.deleteDialog = this.deleteDialog.bind(this)
     this.deleteAction = this.deleteAction.bind(this)
-    this.addNewBookmarkAction = this.addNewBookmarkAction.bind(this)
+    this.addNewBookmark = this.addNewBookmark.bind(this)
   }
 
   componentDidMount() {
@@ -75,10 +73,13 @@ class HomePage extends React.Component {
     this.props.dispatch({ type: 'MARK_BOOKMARK_AS_READ', id })
   }
 
-  addNewBookmarkAction() {
-    this.setState({ addNewBookmark: null }, () => {
-      this.props.dispatch({ type: 'ADD_BOOKMARK', newBookmark: { ...this.state.newBookmark } })
-    })
+  addNewBookmark() {
+    this.setState(
+      { addNewBookmark: true },
+      () => {
+        this.props.dispatch({ type: 'RESET_BOOKMARK' })
+      }
+    )
   }
 
   render() {
@@ -112,50 +113,14 @@ class HomePage extends React.Component {
         : null}
 
       {this.state.addNewBookmark
-        ? <Dialog
-          open
-          onClose={(action) => {
-            if (action === 'add') {
-              this.addNewBookmarkAction()
+        ? <AddNewBookmark onSave={
+          () => this.setState(
+            { addNewBookmark: false },
+            () => {
+              this.props.dispatch({ type: 'SELECT_BOOKMARK_FOLDER', selectedIndex: folderByName('pending').selectedIndex })
             }
-            this.setState({ addNewBookmark: false })
-          }}>
-          <DialogTitle>Add Bookmark</DialogTitle>
-          <DialogContent>
-            <div className='add-new-bookmark-url'>
-              <TextField
-                label='URL'
-                onTrailingIconSelect={() => this.setState({
-                  newBookmark: { ...this.state.newBookmark, url: '' },
-                })}
-                trailingIcon={<MaterialIcon role="button" icon="delete" />} >
-                <Input
-                  value={this.state.newBookmark.url}
-                  onChange={(e) => this.setState({
-                    newBookmark: { ...this.state.newBookmark, url: e.currentTarget.value },
-                  })} />
-              </TextField>
-            </div>
-
-            <div>
-              <TextField
-                label='Title'
-                onTrailingIconSelect={() => this.setState({
-                  newBookmark: { ...this.state.newBookmark, title: '' },
-                })}
-                trailingIcon={<MaterialIcon role="button" icon="delete" />} >
-                <Input
-                  value={this.state.newBookmark.title}
-                  onChange={(e) => this.setState({
-                    newBookmark: { ...this.state.newBookmark, title: e.currentTarget.value },
-                  })} />
-              </TextField>
-            </div>
-          </DialogContent>
-          <DialogFooter>
-            <DialogButton action='add' isDefault>add</DialogButton>
-          </DialogFooter>
-        </Dialog>
+          )
+        } />
         : null}
 
       <Grid key={'homePageRoot'}>
@@ -188,13 +153,7 @@ class HomePage extends React.Component {
       </Grid>
       <Fab key={'addLink'} className='addNewBookmark' icon={
         <MaterialIcon hasRipple icon='add' />
-      } onClick={() => this.setState({
-        addNewBookmark: true,
-        newBookmark: {
-          title: '',
-          url: ''
-        }
-      })} />
+      } onClick={() => this.addNewBookmark()} />
     </div>
   }
 }

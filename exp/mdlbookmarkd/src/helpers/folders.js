@@ -1,17 +1,20 @@
 export const folders = {
   0: {
+    selectedIndex: 0,
     name: 'bookmarks',
     filter: (bookmarks) => {
       return bookmarks.filter((v) => !v.inbox)
     }
   },
   1: {
+    selectedIndex: 1,
     name: 'pending',
     filter: (bookmarks) => {
       return bookmarks.filter((v) => v.inbox)
     }
   },
   2: {
+    selectedIndex: 2,
     name: 'duplicated',
     filter: (bookmarks) => {
       var repeatedURLs = {}
@@ -35,6 +38,7 @@ export const folders = {
     }
   },
   3: {
+    selectedIndex: 3,
     name: 'all',
     filter: (bookmarks) => bookmarks
   },
