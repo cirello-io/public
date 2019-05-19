@@ -19,11 +19,11 @@ import Dialog, { DialogTitle, DialogContent, DialogFooter, DialogButton } from '
 import Fab from '@material/react-fab'
 import MaterialIcon from '@material/react-material-icon'
 import React from 'react'
+import TextField, { Input } from '@material/react-text-field';
 import moment from 'moment'
 import { Cell, Grid, Row } from '@material/react-layout-grid'
 import { Headline6, Caption } from '@material/react-typography'
 import { connect } from 'react-redux'
-import { folders } from '../../helpers/folders'
 
 class HomePage extends React.Component {
   constructor(props) {
@@ -31,7 +31,7 @@ class HomePage extends React.Component {
 
     this.state = {
       visible: -1,
-      fuzzySearch: '',
+      fuzzySearch: props.fuzzySearch,
       delete: null
     }
     this.filterBy = this.filterBy.bind(this)
@@ -50,7 +50,9 @@ class HomePage extends React.Component {
   }
 
   filterBy(v) {
-    this.setState({ fuzzySearch: v.toLowerCase() })
+    this.setState({ fuzzySearch: v }, () => {
+      this.props.dispatch({ type: 'TRIGGER_FUZZY_SEARCH', fuzzySearch: v })
+    })
   }
 
   deleteDialog(e, card) {
@@ -73,7 +75,7 @@ class HomePage extends React.Component {
       return (<Grid></Grid>)
     }
 
-    const listing = this.props.filteredBookmarks
+    const listing = this.props.bookmarks.filteredBookmarks
 
     return <div>
       {this.state.delete !== null
@@ -99,6 +101,21 @@ class HomePage extends React.Component {
         : null}
 
       <Grid key={'homePageRoot'}>
+        <Row key={'searchBarRow'} className='searchbar-row'>
+          <Cell columns={3} key={'searchBarLeftPadding'} />
+          <Cell columns={6} align="middle">
+            <TextField
+              fullWidth
+              label='search'
+              onTrailingIconSelect={() => this.filterBy('')}
+              trailingIcon={<MaterialIcon role="button" icon="delete" />} >
+              <Input
+                value={this.state.fuzzySearch}
+                onChange={(e) => this.filterBy(e.currentTarget.value)} />
+            </TextField>
+          </Cell>
+          <Cell columns={3} key={'searchBarRightPadding'} />
+        </Row>
         <Row key={'homePageRow0'}>
           {listing.map((v) => {
             return <Cell columns={4} key={'bookmarkCard-cell-' + v.id}>
@@ -118,29 +135,9 @@ class HomePage extends React.Component {
   }
 }
 
-// distilled from https://gist.github.com/mdwheele/7171422
-function fuzzyMatch(haystack, needle) {
-  var caret = 0
-  for (var i = 0; i < needle.length; i++) {
-    var c = needle[i]
-    if (c === ' ') {
-      continue
-    }
-    caret = haystack.indexOf(c, caret)
-    if (caret === -1) {
-      return false
-    }
-    caret++
-  }
-  return true
-}
-
 function s2p(state) {
   return {
-    bookmarks: state.bookmarks ? state.bookmarks : { loaded: false },
-    filteredBookmarks: state.bookmarks && state.bookmarks.loaded
-      ? folders[state.bookmarks.selectedIndex].filter(state.bookmarks.bookmarks)
-      : []
+    bookmarks: state.bookmarks
   }
 }
 

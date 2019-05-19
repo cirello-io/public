@@ -81,7 +81,6 @@ class App extends React.Component {
           {drawer}
           <DrawerAppContent className='drawer-app-content'>
             {!this.props.loaded ? <LinearProgress indeterminate /> : null}
-            <div>{this.props.linkAdded}</div>
 
             <Route exact path='/' component={HomePage} />
             <Route path='/post' component={PostPage} />
@@ -97,6 +96,7 @@ export default withRouter(connect(
   (state) => {
     return {
       loaded: state.bookmarks.loaded,
+      selectedIndex: state.bookmarks.selectedIndex,
       bookmarkCount: state.bookmarks.loaded
         ? folderByName('bookmarks').filter(state.bookmarks.bookmarks).length
         : 0,

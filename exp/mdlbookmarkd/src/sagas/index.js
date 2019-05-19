@@ -14,8 +14,17 @@ function* linkWatcher() {
   yield takeLatest('INITIAL_LOAD_START', initialDataload)
 }
 
+function* fuzzySearch(action) {
+  yield put({ type: 'FUZZY_SEARCH', fuzzySearch: action.fuzzySearch });
+}
+
+function* fuzzySearchWatcher() {
+  yield takeLatest('TRIGGER_FUZZY_SEARCH', fuzzySearch)
+}
+
 export default function* rootSaga() {
   yield all({
-    link: linkWatcher()
+    link: linkWatcher(),
+    fuzzySearch: fuzzySearchWatcher()
   })
 }

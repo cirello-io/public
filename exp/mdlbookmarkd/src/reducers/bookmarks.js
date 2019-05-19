@@ -17,17 +17,24 @@ import { folders } from '../helpers/folders'
 const initialState = {
   loaded: false,
   bookmarks: [],
+  filteredBookmarks: [],
   bookmark: null,
   folder: folders[0],
-  selectedIndex: 0
+  selectedIndex: 0,
+  fuzzySearch: ''
 }
 
 function reducer(state = initialState, action) {
   switch (action.type) {
     case 'SELECT_BOOKMARK_FOLDER':
-      return { ...state, selectedIndex: action.selectedIndex, folder: folders[action.selectedIndex] }
-    case 'INITIAL_LOAD_COMPLETE': {
       return {
+        ...state,
+        selectedIndex: action.selectedIndex,
+        folder: folders[action.selectedIndex],
+        filteredBookmarks: folders[action.selectedIndex].filter(state.bookmarks)
+      }
+    case 'INITIAL_LOAD_COMPLETE': {
+      let ret = {
         ...state,
         loaded: true,
         bookmarks: (
@@ -35,6 +42,24 @@ function reducer(state = initialState, action) {
             ? []
             : state.bookmarks.slice()
         ).filter((v) => v.id !== state.bookmark.id).concat(action.bookmarks)
+      }
+      ret.filteredBookmarks = folders[state.selectedIndex].filter(ret.bookmarks)
+      return ret
+    }
+    case 'FUZZY_SEARCH': {
+      if (action.fuzzySearch === '') {
+        return {
+          ...state,
+          filteredBookmarks: state.folder.filter(state.bookmarks)
+        }
+      }
+      var fuzzySearch = action.fuzzySearch.toLowerCase()
+      return {
+        ...state,
+        filteredBookmarks: state.folder.filter(state.bookmarks).filter((v) => {
+          return fuzzyMatch(v.url.toLowerCase(), fuzzySearch) ||
+            fuzzyMatch(v.title.toLowerCase(), fuzzySearch)
+        })
       }
     }
     case 'BOOKMARK_ADDED': {
@@ -76,3 +101,20 @@ function reducer(state = initialState, action) {
 }
 
 export default reducer
+
+// distilled from https://gist.github.com/mdwheele/7171422
+function fuzzyMatch(haystack, needle) {
+  var caret = 0
+  for (var i = 0; i < needle.length; i++) {
+    var c = needle[i]
+    if (c === ' ') {
+      continue
+    }
+    caret = haystack.indexOf(c, caret)
+    if (caret === -1) {
+      return false
+    }
+    caret++
+  }
+  return true
+}
