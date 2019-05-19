@@ -1,4 +1,4 @@
-// Copyright 2018 github.com/ucirello
+// Copyright 2019 github.com/ucirello
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { folders } from '../helpers/folders'
+
 const initialState = {
   loaded: false,
   bookmarks: [],
-  bookmark: null
+  bookmark: null,
+  folder: folders[0],
+  selectedIndex: 0
 }
 
 function reducer(state = initialState, action) {
   switch (action.type) {
-    case 'INITIAL_LOAD': {
+    case 'SELECT_BOOKMARK_FOLDER':
+      return { ...state, selectedIndex: action.selectedIndex, folder: folders[action.selectedIndex] }
+    case 'INITIAL_LOAD_COMPLETE': {
       return {
         ...state,
         loaded: true,

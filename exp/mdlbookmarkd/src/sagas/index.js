@@ -1,11 +1,17 @@
 import { put, takeLatest, all } from 'redux-saga/effects';
+import config from '../config'
 
-function* addLink(action) {
-  yield put({ type: "LINK_ADDED", link: action.url });
+var cfg = config()
+
+function* initialDataload() {
+  const json = yield fetch(cfg.http + '/state', {
+    credentials: 'same-origin'
+  }).then(response => response.json())
+  yield put({ type: 'INITIAL_LOAD_COMPLETE', bookmarks: json });
 }
 
 function* linkWatcher() {
-  yield takeLatest('ADD_LINK', addLink)
+  yield takeLatest('INITIAL_LOAD_START', initialDataload)
 }
 
 export default function* rootSaga() {
