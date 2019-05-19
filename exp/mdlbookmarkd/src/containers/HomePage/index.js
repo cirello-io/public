@@ -30,13 +30,18 @@ class HomePage extends React.Component {
     super(props)
 
     this.state = {
-      visible: -1,
       fuzzySearch: props.fuzzySearch,
-      delete: null
+      delete: null,
+      addNewBookmark: false,
+      newBookmark: {
+        title: '',
+        url: ''
+      }
     }
     this.filterBy = this.filterBy.bind(this)
     this.deleteDialog = this.deleteDialog.bind(this)
     this.deleteAction = this.deleteAction.bind(this)
+    this.addNewBookmarkAction = this.addNewBookmarkAction.bind(this)
   }
 
   componentDidMount() {
@@ -70,6 +75,12 @@ class HomePage extends React.Component {
     this.props.dispatch({ type: 'MARK_BOOKMARK_AS_READ', id })
   }
 
+  addNewBookmarkAction() {
+    this.setState({ addNewBookmark: null }, () => {
+      this.props.dispatch({ type: 'ADD_BOOKMARK', newBookmark: { ...this.state.newBookmark } })
+    })
+  }
+
   render() {
     if (!this.dependenciesLoaded()) {
       return (<Grid></Grid>)
@@ -96,6 +107,53 @@ class HomePage extends React.Component {
           <DialogFooter>
             <DialogButton action='keep' isDefault>Keep</DialogButton>
             <DialogButton action='delete'>Delete</DialogButton>
+          </DialogFooter>
+        </Dialog>
+        : null}
+
+      {this.state.addNewBookmark
+        ? <Dialog
+          open
+          onClose={(action) => {
+            if (action === 'add') {
+              this.addNewBookmarkAction()
+            }
+            this.setState({ addNewBookmark: false })
+          }}>
+          <DialogTitle>Add Bookmark</DialogTitle>
+          <DialogContent>
+            <div className='add-new-bookmark-url'>
+              <TextField
+                label='URL'
+                onTrailingIconSelect={() => this.setState({
+                  newBookmark: { ...this.state.newBookmark, url: '' },
+                })}
+                trailingIcon={<MaterialIcon role="button" icon="delete" />} >
+                <Input
+                  value={this.state.newBookmark.url}
+                  onChange={(e) => this.setState({
+                    newBookmark: { ...this.state.newBookmark, url: e.currentTarget.value },
+                  })} />
+              </TextField>
+            </div>
+
+            <div>
+              <TextField
+                label='Title'
+                onTrailingIconSelect={() => this.setState({
+                  newBookmark: { ...this.state.newBookmark, title: '' },
+                })}
+                trailingIcon={<MaterialIcon role="button" icon="delete" />} >
+                <Input
+                  value={this.state.newBookmark.title}
+                  onChange={(e) => this.setState({
+                    newBookmark: { ...this.state.newBookmark, title: e.currentTarget.value },
+                  })} />
+              </TextField>
+            </div>
+          </DialogContent>
+          <DialogFooter>
+            <DialogButton action='add' isDefault>add</DialogButton>
           </DialogFooter>
         </Dialog>
         : null}
@@ -129,8 +187,14 @@ class HomePage extends React.Component {
         </Row>
       </Grid>
       <Fab key={'addLink'} className='addNewBookmark' icon={
-        <MaterialIcon hasRipple icon='add' onClick={() => console.log('add link')} />
-      } />
+        <MaterialIcon hasRipple icon='add' />
+      } onClick={() => this.setState({
+        addNewBookmark: true,
+        newBookmark: {
+          title: '',
+          url: ''
+        }
+      })} />
     </div>
   }
 }
