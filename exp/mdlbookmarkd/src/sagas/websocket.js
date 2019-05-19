@@ -28,7 +28,6 @@ function websocketInitChannel() {
 
     ws.onmessage = function (evt) {
       var message = JSON.parse(evt.data)
-      console.log(message)
       emitter(message)
     }
 

@@ -87,7 +87,8 @@ function reducer(state = initialState, action) {
     case 'BOOKMARK_DELETED': {
       return {
         ...state,
-        bookmarks: state.bookmarks.slice().filter((v) => v.id !== action.id)
+        bookmarks: state.bookmarks.slice().filter((v) => v.id !== action.id),
+        filteredBookmarks: state.filteredBookmarks.slice().filter((v) => v.id !== action.id)
       }
     }
     case 'BOOKMARK':

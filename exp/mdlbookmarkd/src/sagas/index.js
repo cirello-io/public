@@ -1,4 +1,4 @@
-import { put, takeLatest, all } from 'redux-saga/effects';
+import { put, takeLatest, takeLeading, all } from 'redux-saga/effects';
 import config from '../config'
 
 var cfg = config()
@@ -10,8 +10,19 @@ function* initialDataload() {
   yield put({ type: 'INITIAL_LOAD_COMPLETE', bookmarks: json });
 }
 
+function* deleteBookmark(action) {
+  yield fetch(cfg.http + '/deleteBookmark', {
+    method: 'POST',
+    body: JSON.stringify({ id: action.card.id }),
+    credentials: 'same-origin'
+  }).then(response => response.json()).catch((e) => {
+    console.log('cannot delete bookmark:', e)
+  })
+}
+
 function* linkWatcher() {
   yield takeLatest('INITIAL_LOAD_START', initialDataload)
+  yield takeLeading('DELETE_BOOKMARK', deleteBookmark)
 }
 
 function* fuzzySearch(action) {
