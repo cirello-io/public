@@ -18,3 +18,5 @@
 *.pem
 *.p12
 *.cert.zip
+
+profile.cov
