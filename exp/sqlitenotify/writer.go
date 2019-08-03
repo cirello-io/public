@@ -14,38 +14,94 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"flag"
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
+	"golang.org/x/xerrors"
 )
 
+var slow = flag.Bool("slow", false, "")
+var interactive = flag.Bool("interactive", false, "")
+
 func main() {
-	db, err := sql.Open("sqlite3", "file:sqlite.db")
+	flag.Parse()
+	const dsn = "file:sqlite.db?_auto_vacuum=full&_busy_timeout=5000&_journal=DELETE&_locking=NORMAL&mode=rw&_mutex=full&_secure_delete=true&_sync=EXTRA&_txlock=exclusive"
+	db, err := sql.Open("sqlite3", dsn)
 	check(err)
 	db.SetMaxOpenConns(1)
 	defer db.Close()
 
-	tick := time.Tick(1 * time.Nanosecond)
+	// typical user operation latency
+	tick := time.Tick(150 * time.Millisecond)
 	for range tick {
-		stmts := []string{
-			"BEGIN TRANSACTION",
-			"INSERT INTO t1 VALUES (1)",
-			"COMMIT",
-		}
-		for _, stmt := range stmts {
-			res, err := db.Exec(stmt)
-			if err != nil {
-				spew.Dump(res, err)
+		const retries = 5
+		checkLock := func(err error) bool {
+			if err == nil {
+				return false
 			}
+			if isLocked(err) {
+				log.Println(err, "retrying")
+				return true
+			}
+			check(err)
+			return false
+		}
+		for i := 0; i < retries; i++ {
+			tx, err := db.BeginTx(context.Background(), &sql.TxOptions{
+				Isolation: sql.LevelSerializable,
+			})
+			if checkLock(err) {
+				continue
+			}
+
+			var i int
+			row := tx.QueryRow("SELECT v FROM t1 WHERE id = 1")
+			checkLock(row.Scan(&i))
+
+			i++
+
+			_, err = tx.Exec("UPDATE t1 SET v = $1 WHERE id = 1", i)
+			if checkLock(err) {
+				continue
+			}
+
+			// typical local file operation latency
+			wait := 75 * time.Millisecond
+			if *slow {
+				// typical network latency
+				wait = 250 * time.Millisecond
+			}
+			time.Sleep(wait)
+
+			if checkLock(tx.Commit()) {
+				tx.Rollback()
+				continue
+			}
+			break
+		}
+		fmt.Print(".")
+		if *interactive {
+			var i string
+			fmt.Scanln(&i)
 		}
 	}
 }
 
 func check(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
+}
+
+func isLocked(err error) bool {
+	var sqliteErr sqlite3.Error
+	if xerrors.As(err, &sqliteErr) && sqliteErr.Code == sqlite3.ErrBusy {
+		return true
+	}
+	return false
 }

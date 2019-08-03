@@ -15,14 +15,20 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"log"
 
 	"github.com/fsnotify/fsnotify"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
+	"golang.org/x/xerrors"
 )
 
+var verbose = flag.Bool("verbose", false, "")
+
 func main() {
-	db, err := sql.Open("sqlite3", "file:sqlite.db")
+	flag.Parse()
+	const dsn = "file:sqlite.db?_auto_vacuum=full&_busy_timeout=5000&_journal=DELETE&_locking=NORMAL&mode=rw&_mutex=full&_secure_delete=true&_sync=EXTRA&_txlock=exclusive"
+	db, err := sql.Open("sqlite3", dsn)
 	check(err)
 	db.SetMaxOpenConns(1)
 	defer db.Close()
@@ -36,10 +42,17 @@ func main() {
 	notifications := make(chan struct{}, 1024000)
 	go func() {
 		for range notifications {
-			row := db.QueryRow("select count(*) from t1")
-			var rowCount int64
-			err := row.Scan(&rowCount)
-			log.Println(rowCount, err)
+			for {
+				row := db.QueryRow("select v from t1")
+				var i int64
+				err := row.Scan(&i)
+				if isLocked(err) {
+					log.Println(i, err, len(notifications), "retrying")
+					continue
+				}
+				log.Println(i, err, len(notifications))
+				break
+			}
 		}
 	}()
 
@@ -53,7 +66,9 @@ func main() {
 				if event.Op&fsnotify.Write == fsnotify.Write {
 					select {
 					case notifications <- struct{}{}:
-						log.Println("detected modification", len(notifications), event, event.Name)
+						if *verbose {
+							log.Println("detected modification", len(notifications), event, event.Name)
+						}
 					default:
 						log.Println("notification overflow", len(notifications))
 					}
@@ -79,4 +94,12 @@ func check(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func isLocked(err error) bool {
+	var sqliteErr sqlite3.Error
+	if xerrors.As(err, &sqliteErr) && sqliteErr.Code == sqlite3.ErrBusy {
+		return true
+	}
+	return false
 }
