@@ -42,10 +42,22 @@ func main() {
 	notifications := make(chan struct{}, 1024000)
 	go func() {
 		for range notifications {
+			var lastDataVersion int64
 			for {
-				row := db.QueryRow("select v from t1")
+				var dataVersion int64
+				dataVersionRow := db.QueryRow("PRAGMA data_version;")
+				err := dataVersionRow.Scan(&dataVersion)
+				if isLocked(err) {
+					log.Println("cannot load data version:", err, len(notifications), "retrying")
+					continue
+				}
+				if lastDataVersion == dataVersion {
+					continue
+				}
+				lastDataVersion = dataVersion
+				vRow := db.QueryRow("select v from t1")
 				var i int64
-				err := row.Scan(&i)
+				err = vRow.Scan(&i)
 				if isLocked(err) {
 					log.Println(i, err, len(notifications), "retrying")
 					continue
