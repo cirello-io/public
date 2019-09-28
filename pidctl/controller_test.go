@@ -44,6 +44,12 @@ var tests = []struct {
 	expectPanic  bool
 }{
 	{
+		name: "empty controller",
+		steps: []*step{
+			{0, 0, 0},
+		},
+	},
+	{
 		name: "p-only controller",
 		p:    0.5,
 		steps: []*step{
@@ -173,10 +179,15 @@ func TestController(t *testing.T) {
 					panic(r)
 				}
 			}()
-			c := Controller{
-				P: ratFloat64(test.p),
-				I: ratFloat64(test.i),
-				D: ratFloat64(test.d),
+			c := Controller{}
+			if test.p != 0 {
+				c.P = ratFloat64(test.p)
+			}
+			if test.i != 0 {
+				c.I = ratFloat64(test.i)
+			}
+			if test.d != 0 {
+				c.D = ratFloat64(test.d)
 			}
 			if test.min != 0 || test.max != 0 {
 				c.Min = ratFloat64(test.min)
