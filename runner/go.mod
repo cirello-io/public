@@ -8,3 +8,5 @@ require (
 	github.com/urfave/cli v1.22.1
 	golang.org/x/sys v0.0.0-20190124100055-b90733256f2e // indirect
 )
+
+go 1.13
