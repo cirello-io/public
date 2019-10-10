@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	tplText "text/template"
 
@@ -32,7 +33,7 @@ import (
 )
 
 var (
-	input    = flag.String("file", "", "swagger (openAPI v2) json filename")
+	spec     = flag.String("spec", ".", "swagger (openAPI v2) json filename")
 	isHTML   = flag.Bool("html", false, "use html/template")
 	template = flag.String("template", "", "location of the template file")
 	output   = flag.String("output", "", "filename of the expected output")
@@ -42,59 +43,81 @@ func main() {
 	flag.Parse()
 	log.SetFlags(0)
 	log.SetPrefix("openapigen: ")
-	var err error
-	tplRaw := defaultRawTemplate
-	if *template != "" {
-		tplRaw, err = readFile(*template)
-		if err != nil {
-			log.Fatal("cannot load template:", err)
-		}
-	} else {
-		log.Println("using default template")
-	}
-	var tpl interface {
-		Execute(wr io.Writer, data interface{}) error
-	}
-	funcs := map[string]interface{}{
-		"camel":      strcase.ToCamel,
-		"lowerCamel": strcase.ToLowerCamel,
-		"snake":      strcase.ToSnake,
-		"stripDefinitionPrefix": func(s string) string {
-			return strings.TrimPrefix(s, "#/definitions/")
-		},
-	}
-	switch {
-	case *isHTML:
-		tpl, err = tplHTML.New("openapigen").Funcs(tplHTML.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
-		if err != nil {
-			log.Fatal("cannot parse template (html mode):", err)
-		}
-	default:
-		tpl, err = tplText.New("openapigen").Funcs(tplText.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
-		if err != nil {
-			log.Fatal("cannot parse template (text mode):", err)
-		}
-	}
-	fd, err := os.Open(*input)
+	fd, err := os.Open(*spec)
 	if err != nil {
 		log.Fatal("cannot open swagger json file:", err)
 	}
-	log.Println("Decoding input file with https://godoc.org/github.com/getkin/kin-openapi/openapi2#Swagger")
+	log.Println("Decoding spec file with https://godoc.org/github.com/getkin/kin-openapi/openapi2#Swagger")
 	var swagger openapi2.Swagger
 	if err := json.NewDecoder(fd).Decode(&swagger); err != nil {
 		log.Fatal("cannot parse swagger json file:", err)
 	}
-	var out io.Writer = os.Stdout
-	if *output != "" {
-		fd, err := os.Create(*output)
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("cannot detect current working directory:", err)
+	}
+	templateDir, err := filepath.Abs(*template)
+	if err != nil {
+		log.Fatal("cannot calculate absolute directory for template:", err)
+	}
+	outputDir, err := filepath.Abs(*output)
+	if err != nil {
+		log.Fatal("cannot calculate absolute directory for output:", err)
+	}
+	err = filepath.Walk(templateDir, func(path string, info os.FileInfo, err error) error {
+		if filepath.Ext(path) != ".tpl" || (filepath.Ext(path) == ".tpl" && info.IsDir()) {
+			return nil
+		}
+		relpath, err := filepath.Rel(wd, path)
+		if err != nil {
+			log.Fatalf("cannot calculate relative directory for %s:", path, err)
+		}
+		log.Println("rendering", relpath)
+		tplRaw, err := readFile(path)
+		if err != nil {
+			log.Fatal("cannot load template:", err)
+		}
+		var tpl interface {
+			Execute(wr io.Writer, data interface{}) error
+		}
+		funcs := map[string]interface{}{
+			"camel":      strcase.ToCamel,
+			"lowerCamel": strcase.ToLowerCamel,
+			"snake":      strcase.ToSnake,
+			"stripDefinitionPrefix": func(s string) string {
+				return strings.TrimPrefix(s, "#/definitions/")
+			},
+		}
+		switch {
+		case *isHTML:
+			tpl, err = tplHTML.New("openapigen").Funcs(tplHTML.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
+			if err != nil {
+				log.Fatal("cannot parse template (html mode):", err)
+			}
+		default:
+			tpl, err = tplText.New("openapigen").Funcs(tplText.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
+			if err != nil {
+				log.Fatal("cannot parse template (text mode):", err)
+			}
+		}
+		dir := filepath.Dir(filepath.Join(outputDir, strings.TrimPrefix(path, templateDir)))
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, os.ModePerm&0755); err != nil {
+				log.Fatalf("cannot create directory %s: %v", dir, err)
+			}
+		}
+		fd, err := os.Create(strings.TrimSuffix(filepath.Join(dir, filepath.Base(path)), ".tpl"))
 		if err != nil {
 			log.Fatal("cannot create output file:", err)
 		}
 		defer fd.Close()
-		out = fd
-	}
-	if err := tpl.Execute(out, swagger); err != nil {
-		log.Fatal("cannot render output:", err)
+		if err := tpl.Execute(fd, swagger); err != nil {
+			log.Fatal("cannot render output:", err)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal("cannot iterate through template files")
 	}
 }
 
@@ -102,109 +125,3 @@ func readFile(fn string) (string, error) {
 	b, err := ioutil.ReadFile(fn)
 	return string(b), err
 }
-
-const defaultRawTemplate = `
-{{- block "info" .Info }}
-Info
-	Title: {{ .Title }}
-	Description: {{ .Description }}
-	TermsOfService: {{ .TermsOfService }}
-	{{- with .Contact}}
-	Contact: {{ .Name }} | {{ .URL }} | {{ .Email }}
-	{{ end -}}
-	{{- with .License }}
-	License: {{ .Name }} | {{ .URL }}
-	{{ end -}}
-	Version: {{ .Version }}
-{{ end -}}
-
-{{- block "externalDocs" .ExternalDocs }}
-External Docs: {{ .Description }} - {{ .URL }}
-{{ end -}}
-
-{{- block "schemes" .Schemes }}
-Schemes: {{ range . }}{{ . }} {{ end }}
-{{ end -}}
-
-{{- block "basePath" .BasePath }}
-BasePath: {{ . }}
-{{ end -}}
-
-{{- block "paths" .Paths }}
-Paths
-	{{ range $url, $item := . }}
-		{{ $url }}:
-			- Ref: {{ $item.Ref }}
-			- Parameters: {{ $item.Parameters }}
-			{{- with $item.Delete }}
-			- Delete: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Get }}
-			- Get: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Head }}
-			- Head: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Options }}
-			- Options: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Patch }}
-			- Patch: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Post }}
-			- Post: {{ template "Operation" . -}}
-			{{ end -}}
-			{{- with $item.Put }}
-			- Put: {{ template "Operation" . -}}
-			{{ end -}}
-	{{ end }}
-{{ end -}}
-
-{{- define "Operation" }}
-				Summary: {{ .Summary }}
-				Description: {{ .Description }}
-				ExternalDocs: {{ .ExternalDocs }}
-				Tags: {{ .Tags }}
-				OperationID: {{ .OperationID }}
-				Parameters: {{ template "Parameters" .Parameters }}
-				Responses: {{ template "Responses" .Responses }}
-				Consumes: {{ .Consumes }}
-				Produces: {{ .Produces }}
-				Security: {{ .Security }}
-{{ end -}}
-
-{{- define "Parameters" }}
-	{{- range . }}
-					Parameter:
-						- Ref: {{ .Ref }}
-						- In: {{ .In }}
-						- Name: {{ .Name }}
-						- Description: {{ .Description }}
-						- Required: {{ .Required }}
-						- UniqueItems: {{ .UniqueItems }}
-						- ExclusiveMin: {{ .ExclusiveMin }}
-						- ExclusiveMax: {{ .ExclusiveMax }}
-						- Schema: {{ .Schema }}
-						- Type: {{ .Type }}
-						- Format: {{ .Format }}
-						- Enum: {{ .Enum }}
-						- Minimum: {{ .Minimum }}
-						- Maximum: {{ .Maximum }}
-						- MinLength: {{ .MinLength }}
-						- MaxLength: {{ .MaxLength }}
-						- Pattern: {{ .Pattern }}
-						- Default: {{ .Default }}
-	{{ end -}}
-{{ end -}}
-
-{{- define "Responses" }}
-	{{- range $key, $item := . }}
-					Response {{ $key }}:
-					- Ref: {{ $item.Ref }}
-					- Description: {{ $item.Description }}
-					- Schema: {{ $item.Schema }}
-					- Headers: {{ $item.Headers }}
-					- Examples: {{ $item.Examples }}
-	{{ end -}}
-{{ end -}}
-`
