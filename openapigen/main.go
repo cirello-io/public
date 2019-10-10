@@ -19,6 +19,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	tplHTML "html/template"
 	"io"
 	"io/ioutil"
@@ -70,12 +71,12 @@ func main() {
 		}
 		relpath, err := filepath.Rel(wd, path)
 		if err != nil {
-			log.Fatalf("cannot calculate relative directory for %s:", path, err)
+			return fmt.Errorf("cannot calculate relative directory for %s: %w", path, err)
 		}
 		log.Println("rendering", relpath)
 		tplRaw, err := readFile(path)
 		if err != nil {
-			log.Fatal("cannot load template:", err)
+			return fmt.Errorf("cannot load template: %w", err)
 		}
 		var tpl interface {
 			Execute(wr io.Writer, data interface{}) error
@@ -92,27 +93,27 @@ func main() {
 		case *isHTML:
 			tpl, err = tplHTML.New("openapigen").Funcs(tplHTML.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
 			if err != nil {
-				log.Fatal("cannot parse template (html mode):", err)
+				return fmt.Errorf("cannot parse template (html mode): %w", err)
 			}
 		default:
 			tpl, err = tplText.New("openapigen").Funcs(tplText.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
 			if err != nil {
-				log.Fatal("cannot parse template (text mode):", err)
+				return fmt.Errorf("cannot parse template (text mode): %w", err)
 			}
 		}
 		dir := filepath.Dir(filepath.Join(outputDir, strings.TrimPrefix(path, templateDir)))
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			if err := os.MkdirAll(dir, os.ModePerm&0755); err != nil {
-				log.Fatalf("cannot create directory %s: %v", dir, err)
+				return fmt.Errorf("cannot create directory %s: %w", dir, err)
 			}
 		}
 		fd, err := os.Create(strings.TrimSuffix(filepath.Join(dir, filepath.Base(path)), ".tpl"))
 		if err != nil {
-			log.Fatal("cannot create output file:", err)
+			return fmt.Errorf("cannot create output file: %w", err)
 		}
 		defer fd.Close()
 		if err := tpl.Execute(fd, swagger); err != nil {
-			log.Fatal("cannot render output:", err)
+			return fmt.Errorf("cannot render output: %w", err)
 		}
 		return nil
 	})
