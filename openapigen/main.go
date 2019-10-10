@@ -30,6 +30,7 @@ import (
 	tplText "text/template"
 
 	"github.com/getkin/kin-openapi/openapi2"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 )
 
@@ -87,6 +88,13 @@ func main() {
 			"snake":      strcase.ToSnake,
 			"stripDefinitionPrefix": func(s string) string {
 				return strings.TrimPrefix(s, "#/definitions/")
+			},
+			"loadDefinition": func(s string) (*openapi3.SchemaRef, error) {
+				v, ok := swagger.Definitions[strings.TrimPrefix(s, "#/definitions/")]
+				if !ok {
+					return nil, fmt.Errorf("cannot find %s", s)
+				}
+				return v, nil
 			},
 		}
 		switch {
