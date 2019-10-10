@@ -36,11 +36,8 @@ var (
 	output   = flag.String("output", "", "filename of the expected output")
 )
 
-func init() {
-	flag.Parse()
-}
-
 func main() {
+	flag.Parse()
 	log.SetFlags(0)
 	log.SetPrefix("openapigen: ")
 	var err error
@@ -72,6 +69,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot open swagger json file:", err)
 	}
+	log.Println("Decoding input file with https://godoc.org/github.com/getkin/kin-openapi/openapi2#Swagger")
 	var swagger openapi2.Swagger
 	if err := json.NewDecoder(fd).Decode(&swagger); err != nil {
 		log.Fatal("cannot parse swagger json file:", err)
