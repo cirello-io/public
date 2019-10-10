@@ -24,9 +24,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	tplText "text/template"
 
 	"github.com/getkin/kin-openapi/openapi2"
+	"github.com/iancoleman/strcase"
 )
 
 var (
@@ -53,14 +55,22 @@ func main() {
 	var tpl interface {
 		Execute(wr io.Writer, data interface{}) error
 	}
+	funcs := map[string]interface{}{
+		"camel":      strcase.ToCamel,
+		"lowerCamel": strcase.ToLowerCamel,
+		"snake":      strcase.ToSnake,
+		"stripDefinitionPrefix": func(s string) string {
+			return strings.TrimPrefix(s, "#/definitions/")
+		},
+	}
 	switch {
 	case *isHTML:
-		tpl, err = tplHTML.New("openapigen").Option("missingkey=zero").Parse(tplRaw)
+		tpl, err = tplHTML.New("openapigen").Funcs(tplHTML.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
 		if err != nil {
 			log.Fatal("cannot parse template (html mode):", err)
 		}
 	default:
-		tpl, err = tplText.New("openapigen").Option("missingkey=zero").Parse(tplRaw)
+		tpl, err = tplText.New("openapigen").Funcs(tplText.FuncMap(funcs)).Option("missingkey=zero").Parse(tplRaw)
 		if err != nil {
 			log.Fatal("cannot parse template (text mode):", err)
 		}
