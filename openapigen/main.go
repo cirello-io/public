@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -108,6 +109,16 @@ func main() {
 			"snake":      strcase.ToSnake,
 			"stripDefinitionPrefix": func(s string) string {
 				return strings.TrimPrefix(s, "#/definitions/")
+			},
+			"debug": func(v interface{}) (string, error) {
+				var buf bytes.Buffer
+				enc := json.NewEncoder(&buf)
+				enc.SetIndent("", "	")
+				err := enc.Encode(v)
+				if err != nil {
+					return "", fmt.Errorf("cannot marshal: %w", err)
+				}
+				return buf.String(), nil
 			},
 		}
 		switch {
