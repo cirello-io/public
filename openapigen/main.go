@@ -30,15 +30,18 @@ import (
 	tplText "text/template"
 
 	"github.com/getkin/kin-openapi/openapi2"
+	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 )
 
 var (
-	spec     = flag.String("spec", ".", "swagger (openAPI v2) json filename")
-	isHTML   = flag.Bool("html", false, "use html/template")
-	template = flag.String("template", "", "location of the template file")
-	output   = flag.String("output", "", "filename of the expected output")
+	spec        = flag.String("spec", ".", "openAPI json filename")
+	isHTML      = flag.Bool("html", false, "use html/template")
+	template    = flag.String("template", "", "location of the template file")
+	output      = flag.String("output", "", "filename of the expected output")
+	isOpenAPIV2 = flag.Bool("v2mode", false, "indicates the spec is an openAPI v2 file")
+	view        = flag.Bool("view", false, "print parsed spec file")
 )
 
 func main() {
@@ -50,9 +53,26 @@ func main() {
 		log.Fatal("cannot open swagger json file:", err)
 	}
 	log.Println("Decoding spec file with https://godoc.org/github.com/getkin/kin-openapi/openapi2#Swagger")
-	var swagger openapi2.Swagger
-	if err := json.NewDecoder(fd).Decode(&swagger); err != nil {
-		log.Fatal("cannot parse swagger json file:", err)
+	var swagger *openapi3.Swagger
+	if *isOpenAPIV2 {
+		var swaggerV2 openapi2.Swagger
+		err := json.NewDecoder(fd).Decode(&swaggerV2)
+		if err != nil {
+			log.Fatal("cannot parse swaggerV2 json file:", err)
+		}
+		swagger, err = openapi2conv.ToV3Swagger(&swaggerV2)
+		if err != nil {
+			log.Fatal("cannot convert from v2 to v3:", err)
+		}
+	}
+	if *view {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "	")
+		err := enc.Encode(swagger)
+		if err != nil {
+			log.Fatal("cannot encode spec file")
+		}
+		os.Exit(0)
 	}
 	wd, err := os.Getwd()
 	if err != nil {
@@ -88,13 +108,6 @@ func main() {
 			"snake":      strcase.ToSnake,
 			"stripDefinitionPrefix": func(s string) string {
 				return strings.TrimPrefix(s, "#/definitions/")
-			},
-			"loadDefinition": func(s string) (*openapi3.SchemaRef, error) {
-				v, ok := swagger.Definitions[strings.TrimPrefix(s, "#/definitions/")]
-				if !ok {
-					return nil, fmt.Errorf("cannot find %s", s)
-				}
-				return v, nil
 			},
 		}
 		switch {
