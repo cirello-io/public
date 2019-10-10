@@ -27,6 +27,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	tplText "text/template"
 
@@ -104,6 +105,13 @@ func main() {
 			Execute(wr io.Writer, data interface{}) error
 		}
 		funcs := map[string]interface{}{
+			"firstLetter": func(s string) string {
+				if len(s) == 0 {
+					return ""
+				}
+				return string(s[0])
+			},
+			"toLower":    strings.ToLower,
 			"camel":      strcase.ToCamel,
 			"lowerCamel": strcase.ToLowerCamel,
 			"snake":      strcase.ToSnake,
@@ -119,6 +127,48 @@ func main() {
 					return "", fmt.Errorf("cannot marshal: %w", err)
 				}
 				return buf.String(), nil
+			},
+			"uniquePathTags": func() []string {
+				var tags []string
+				for _, pathItem := range swagger.Paths {
+					if pathItem.Connect != nil {
+						tags = append(tags, pathItem.Connect.Tags...)
+					}
+					if pathItem.Delete != nil {
+						tags = append(tags, pathItem.Delete.Tags...)
+					}
+					if pathItem.Get != nil {
+						tags = append(tags, pathItem.Get.Tags...)
+					}
+					if pathItem.Head != nil {
+						tags = append(tags, pathItem.Head.Tags...)
+					}
+					if pathItem.Options != nil {
+						tags = append(tags, pathItem.Options.Tags...)
+					}
+					if pathItem.Patch != nil {
+						tags = append(tags, pathItem.Patch.Tags...)
+					}
+					if pathItem.Post != nil {
+						tags = append(tags, pathItem.Post.Tags...)
+					}
+					if pathItem.Put != nil {
+						tags = append(tags, pathItem.Put.Tags...)
+					}
+					if pathItem.Trace != nil {
+						tags = append(tags, pathItem.Trace.Tags...)
+					}
+				}
+				tagsDict := make(map[string]struct{})
+				for _, tag := range tags {
+					tagsDict[tag] = struct{}{}
+				}
+				uniqTags := []string{}
+				for tag := range tagsDict {
+					uniqTags = append(uniqTags, tag)
+				}
+				sort.Strings(uniqTags)
+				return uniqTags
 			},
 		}
 		switch {
