@@ -60,7 +60,7 @@ func main() {
 	case *isHTML:
 		tpl, err = tplHTML.New("openapigen").Option("missingkey=zero").Parse(tplRaw)
 		if err != nil {
-			log.Fatal("cannot parse template (text mode):", err)
+			log.Fatal("cannot parse template (html mode):", err)
 		}
 	default:
 		tpl, err = tplText.New("openapigen").Option("missingkey=zero").Parse(tplRaw)
