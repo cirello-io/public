@@ -117,7 +117,7 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		log.Fatal("cannot iterate through template files")
+		log.Fatal("cannot iterate through template files:", err)
 	}
 }
 
