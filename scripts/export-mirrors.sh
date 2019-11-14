@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export REPOS="HumorChecker dynamolock errors goherokuname runner bookmarkd snippetsd cci mlflappygopher kohrah-ani oversight pglock svc gists exp poo alfredemoji pidctl openapigen pgqueue"
+export REPOS="dynamolock runner bookmarkd oversight pglock pgqueue HumorChecker errors goherokuname snippetsd cci mlflappygopher kohrah-ani svc gists exp poo alfredemoji pidctl openapigen"
 
 for repo in $REPOS
 do
