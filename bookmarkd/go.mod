@@ -8,7 +8,7 @@ require (
 	github.com/codegangsta/negroni v0.3.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elazarl/go-bindata-assetfs v1.0.0
-	github.com/emersion/go-smtp v0.12.0
+	github.com/emersion/go-smtp v0.12.1
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2 // indirect
@@ -17,7 +17,7 @@ require (
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mattn/go-sqlite3 v1.13.0
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
-	github.com/urfave/cli v1.22.1
+	github.com/urfave/cli v1.22.2
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	google.golang.org/appengine v1.6.1 // indirect
 	mvdan.cc/xurls/v2 v2.1.0
