@@ -6,10 +6,10 @@ import (
 	"cirello.io/qrng"
 )
 
-func TestReader(t *testing.T) {
+func TestRead(t *testing.T) {
 	t.Run("test small", func(t *testing.T) {
 		buf := make([]byte, 1024)
-		n, err := qrng.Reader.Read(buf)
+		n, err := qrng.Read(buf)
 		if err != nil {
 			t.Fatal("unexpected error found:", err)
 		} else if n != len(buf) {
@@ -18,7 +18,7 @@ func TestReader(t *testing.T) {
 	})
 	t.Run("test large", func(t *testing.T) {
 		buf := make([]byte, 2048)
-		n, err := qrng.Reader.Read(buf)
+		n, err := qrng.Read(buf)
 		if err != nil {
 			t.Fatal("unexpected error found:", err)
 		} else if n != len(buf) {
