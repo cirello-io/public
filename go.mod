@@ -20,7 +20,6 @@ require (
 	github.com/jtolds/gls v0.0.0-20170503224851-77f18212c9c7 // indirect
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 // indirect
 	github.com/mattn/go-sqlite3 v1.9.0
-	github.com/miekg/dns v1.0.8
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/smartystreets/assertions v0.0.0-20180607162144-eb5b59917fa2 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20180222194500-ef6db91d284a // indirect

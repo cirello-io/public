@@ -1,6 +1,0 @@
-MODULE                   VERSION
-cirello.io/blackholedns  -
-github.com/miekg/dns     v1.0.4
-github.com/urfave/cli    v1.20.0
-golang.org/x/crypto      v0.0.0-20171124090802-b080dc9a8c48
-golang.org/x/net         v0.0.0-20171128222910-894f8ed5849b
