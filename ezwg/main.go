@@ -61,5 +61,5 @@ ezwg version %[2]s
 commit %[3]s
 built %[4]s
 
-`, CONFIG_FILE, VERSION, GIT_COMMIT, BUILD_DATE)
+`, ConfigFile, Version, GitCommit, BuildDate)
 }

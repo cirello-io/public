@@ -63,8 +63,8 @@ func GenerateReport(dev *wgtypes.Device, conf *ezwgConfig, oldReport *ezwgReport
 			continue
 		}
 
-		online := time.Since(wgPeer.LastHandshakeTime) < TIMEOUT
-		dormant := !wgPeer.LastHandshakeTime.IsZero() && time.Since(wgPeer.LastHandshakeTime) > EXPIRY
+		online := time.Since(wgPeer.LastHandshakeTime) < Timeout
+		dormant := !wgPeer.LastHandshakeTime.IsZero() && time.Since(wgPeer.LastHandshakeTime) > Expiry
 
 		if online {
 			peersOnline++
@@ -121,12 +121,12 @@ func (report *ezwgReport) MustSave(filename string) {
 }
 
 func MustLoadezwgReport() *ezwgReport {
-	raw, err := ioutil.ReadFile(CONFIG_FILE)
+	raw, err := ioutil.ReadFile(ConfigFile)
 
 	if os.IsNotExist(err) {
 		return nil
 	} else if os.IsPermission(err) {
-		ExitFail("%s cannot be accessed. Check read permissions.", CONFIG_FILE)
+		ExitFail("%s cannot be accessed. Check read permissions.", ConfigFile)
 	} else {
 		check(err)
 	}

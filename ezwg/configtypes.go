@@ -52,12 +52,12 @@ type ezwgConfig struct {
 }
 
 func MustLoadezwgConfig() *ezwgConfig {
-	raw, err := ioutil.ReadFile(CONFIG_FILE)
+	raw, err := ioutil.ReadFile(ConfigFile)
 
 	if os.IsNotExist(err) {
-		ExitFail("%s does not exist. `ezwg init` may be required.", CONFIG_FILE)
+		ExitFail("%s does not exist. `ezwg init` may be required.", ConfigFile)
 	} else if os.IsPermission(err) {
-		ExitFail("%s cannot be accessed. Sudo may be required.", CONFIG_FILE)
+		ExitFail("%s cannot be accessed. Sudo may be required.", ConfigFile)
 	} else {
 		check(err)
 	}
@@ -74,7 +74,7 @@ func MustLoadezwgConfig() *ezwgConfig {
 
 func (conf *ezwgConfig) MustSave() {
 	_json, _ := json.MarshalIndent(conf, "", "    ")
-	err := ioutil.WriteFile(CONFIG_FILE, _json, 0600)
+	err := ioutil.WriteFile(ConfigFile, _json, 0600)
 	check(err)
 }
 

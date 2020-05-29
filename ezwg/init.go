@@ -12,21 +12,21 @@ import (
 )
 
 func Init() {
-	_, err := os.Stat(CONFIG_FILE)
+	_, err := os.Stat(ConfigFile)
 
 	if !os.IsNotExist(err) {
-		ExitFail("Refusing to overwrite existing %s", CONFIG_FILE)
+		ExitFail("Refusing to overwrite existing %s", ConfigFile)
 	}
 
 	conf := ezwgConfig{
 		PrivateKey:    GenerateJSONPrivateKey(),
-		ListenPort:    DEFAULT_LISTEN_PORT,
+		ListenPort:    DefaultListenPort,
 		Network:       getRandomNetwork(),
 		Peers:         []PeerConfig{},
 		Domain:        "ezwg",
-		ReportFile:    DEFAULT_REPORT_FILE,
+		ReportFile:    DefaultReportFile,
 		ExternalIP:    getExternalIP(),
-		InterfaceName: DEFAULT_INTERFACE_NAME,
+		InterfaceName: DefaultInterfaceName,
 		Networks:      []JSONIPNet{},
 	}
 
@@ -37,7 +37,7 @@ func Init() {
 
 	conf.MustSave()
 
-	fmt.Printf("Config written to %s. Please check/edit.", CONFIG_FILE)
+	fmt.Printf("Config written to %s. Please check/edit.", ConfigFile)
 }
 
 // get a random /22 subnet on 10.0.0.0 (1023 hosts) (or /24?)

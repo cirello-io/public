@@ -77,7 +77,7 @@ PersistentKeepalive={{ .Keepalive }}
 	err := t.Execute(os.Stdout, map[string]interface{}{
 		"Peer":       peer,
 		"ezwgConfig": conf,
-		"Keepalive":  time.Duration(KEEPALIVE).Seconds(),
+		"Keepalive":  time.Duration(Keepalive).Seconds(),
 		"AllowedIPs": strings.Join(allowedIPsStr, ","),
 	})
 	check(err)
