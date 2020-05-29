@@ -1,4 +1,4 @@
-package ezwg
+package main
 
 import (
 	"fmt"

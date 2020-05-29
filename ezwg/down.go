@@ -1,4 +1,4 @@
-package ezwg
+package main
 
 import (
 	"github.com/vishvananda/netlink"

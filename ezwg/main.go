@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"cirello.io/ezwg"
 )
 
 func main() {
@@ -18,25 +16,25 @@ func main() {
 
 	switch cmd {
 	case "init":
-		ezwg.Init()
+		Init()
 
 	case "add":
-		ezwg.Add()
+		Add()
 
 	case "up":
-		ezwg.Up()
+		Up()
 
 	case "sync":
-		ezwg.Sync()
+		Sync()
 
 	case "report":
-		ezwg.Report()
+		Report()
 
 	case "remove":
-		ezwg.Remove()
+		Remove()
 
 	case "down":
-		ezwg.Down()
+		Down()
 
 	default:
 		help()
@@ -63,5 +61,5 @@ ezwg version %[2]s
 commit %[3]s
 built %[4]s
 
-`, ezwg.CONFIG_FILE, ezwg.VERSION, ezwg.GIT_COMMIT, ezwg.BUILD_DATE)
+`, CONFIG_FILE, VERSION, GIT_COMMIT, BUILD_DATE)
 }

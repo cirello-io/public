@@ -1,4 +1,4 @@
-package ezwg
+package main
 
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
