@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-type DsnetReport struct {
+type ezwgReport struct {
 	ExternalIP    net.IP
 	InterfaceName string
 	ListenPort    int
@@ -33,7 +33,7 @@ type DsnetReport struct {
 	TransmitBytesSI string
 }
 
-func GenerateReport(dev *wgtypes.Device, conf *DsnetConfig, oldReport *DsnetReport) DsnetReport {
+func GenerateReport(dev *wgtypes.Device, conf *ezwgConfig, oldReport *ezwgReport) ezwgReport {
 	wgPeerIndex := make(map[wgtypes.Key]wgtypes.Peer)
 	peerReports := make([]PeerReport, len(conf.Peers))
 	oldPeerReportIndex := make(map[string]PeerReport)
@@ -96,7 +96,7 @@ func GenerateReport(dev *wgtypes.Device, conf *DsnetConfig, oldReport *DsnetRepo
 		}
 	}
 
-	return DsnetReport{
+	return ezwgReport{
 		ExternalIP:      conf.ExternalIP,
 		InterfaceName:   conf.InterfaceName,
 		ListenPort:      conf.ListenPort,
@@ -114,13 +114,13 @@ func GenerateReport(dev *wgtypes.Device, conf *DsnetConfig, oldReport *DsnetRepo
 	}
 }
 
-func (report *DsnetReport) MustSave(filename string) {
+func (report *ezwgReport) MustSave(filename string) {
 	_json, _ := json.MarshalIndent(report, "", "    ")
 	err := ioutil.WriteFile(filename, _json, 0644)
 	check(err)
 }
 
-func MustLoadDsnetReport() *DsnetReport {
+func MustLoadezwgReport() *ezwgReport {
 	raw, err := ioutil.ReadFile(CONFIG_FILE)
 
 	if os.IsNotExist(err) {
@@ -131,7 +131,7 @@ func MustLoadDsnetReport() *DsnetReport {
 		check(err)
 	}
 
-	report := DsnetReport{}
+	report := ezwgReport{}
 	err = json.Unmarshal(raw, &report)
 	check(err)
 
@@ -152,7 +152,7 @@ type PeerReport struct {
 	Online bool
 	// No handshake for 28 days
 	Dormant bool
-	// date peer was added to dsnet config
+	// date peer was added to ezwg config
 	Added time.Time
 	// Internal VPN IP address. Added to AllowedIPs in server config as a /32
 	IP net.IP

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/naggie/dsnet"
+	"cirello.io/ezwg"
 )
 
 func main() {
@@ -18,25 +18,25 @@ func main() {
 
 	switch cmd {
 	case "init":
-		dsnet.Init()
+		ezwg.Init()
 
 	case "add":
-		dsnet.Add()
+		ezwg.Add()
 
 	case "up":
-		dsnet.Up()
+		ezwg.Up()
 
 	case "sync":
-		dsnet.Sync()
+		ezwg.Sync()
 
 	case "report":
-		dsnet.Report()
+		ezwg.Report()
 
 	case "remove":
-		dsnet.Remove()
+		ezwg.Remove()
 
 	case "down":
-		dsnet.Down()
+		ezwg.Down()
 
 	default:
 		help()
@@ -44,9 +44,9 @@ func main() {
 }
 
 func help() {
-	fmt.Printf(`dsnet is a simple tool to manage a centralised wireguard VPN.
+	fmt.Printf(`ezwg is a simple tool to manage a centralised wireguard VPN.
 
-Usage: dsnet <cmd>
+Usage: ezwg <cmd>
 
 Available commands:
 
@@ -59,9 +59,9 @@ Available commands:
 	sync   : Update wireguard configuration from %[1]s after validating
 
 
-dsnet version %[2]s
+ezwg version %[2]s
 commit %[3]s
 built %[4]s
 
-`, dsnet.CONFIG_FILE, dsnet.VERSION, dsnet.GIT_COMMIT, dsnet.BUILD_DATE)
+`, ezwg.CONFIG_FILE, ezwg.VERSION, ezwg.GIT_COMMIT, ezwg.BUILD_DATE)
 }

@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
@@ -7,11 +7,11 @@ import (
 
 func Sync() {
 	// TODO check device settings first
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 	ConfigureDevice(conf)
 }
 
-func ConfigureDevice(conf *DsnetConfig) {
+func ConfigureDevice(conf *ezwgConfig) {
 	wg, err := wgctrl.New()
 	check(err)
 	defer wg.Close()

@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"net"

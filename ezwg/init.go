@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"fmt"
@@ -18,12 +18,12 @@ func Init() {
 		ExitFail("Refusing to overwrite existing %s", CONFIG_FILE)
 	}
 
-	conf := DsnetConfig{
+	conf := ezwgConfig{
 		PrivateKey:    GenerateJSONPrivateKey(),
 		ListenPort:    DEFAULT_LISTEN_PORT,
 		Network:       getRandomNetwork(),
 		Peers:         []PeerConfig{},
-		Domain:        "dsnet",
+		Domain:        "ezwg",
 		ReportFile:    DEFAULT_REPORT_FILE,
 		ExternalIP:    getExternalIP(),
 		InterfaceName: DEFAULT_INTERFACE_NAME,

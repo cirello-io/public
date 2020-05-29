@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"encoding/json"
@@ -31,7 +31,7 @@ type PeerConfig struct {
 	PresharedKey JSONKey     `validate:"required,len=44"`
 }
 
-type DsnetConfig struct {
+type ezwgConfig struct {
 	// domain to append to hostnames. Relies on separate DNS server for
 	// resolution. Informational only.
 	ExternalIP    net.IP `validate:"required"`
@@ -51,18 +51,18 @@ type DsnetConfig struct {
 	Peers      []PeerConfig `validate:"dive"`
 }
 
-func MustLoadDsnetConfig() *DsnetConfig {
+func MustLoadezwgConfig() *ezwgConfig {
 	raw, err := ioutil.ReadFile(CONFIG_FILE)
 
 	if os.IsNotExist(err) {
-		ExitFail("%s does not exist. `dsnet init` may be required.", CONFIG_FILE)
+		ExitFail("%s does not exist. `ezwg init` may be required.", CONFIG_FILE)
 	} else if os.IsPermission(err) {
 		ExitFail("%s cannot be accessed. Sudo may be required.", CONFIG_FILE)
 	} else {
 		check(err)
 	}
 
-	conf := DsnetConfig{}
+	conf := ezwgConfig{}
 	err = json.Unmarshal(raw, &conf)
 	check(err)
 
@@ -72,13 +72,13 @@ func MustLoadDsnetConfig() *DsnetConfig {
 	return &conf
 }
 
-func (conf *DsnetConfig) MustSave() {
+func (conf *ezwgConfig) MustSave() {
 	_json, _ := json.MarshalIndent(conf, "", "    ")
 	err := ioutil.WriteFile(CONFIG_FILE, _json, 0600)
 	check(err)
 }
 
-func (conf *DsnetConfig) MustAddPeer(peer PeerConfig) {
+func (conf *ezwgConfig) MustAddPeer(peer PeerConfig) {
 	// TODO validate all PeerConfig (keys etc)
 
 	for _, p := range conf.Peers {
@@ -112,7 +112,7 @@ func (conf *DsnetConfig) MustAddPeer(peer PeerConfig) {
 	conf.Peers = append(conf.Peers, peer)
 }
 
-func (conf *DsnetConfig) MustRemovePeer(hostname string) {
+func (conf *ezwgConfig) MustRemovePeer(hostname string) {
 	peerIndex := -1
 
 	for i, peer := range conf.Peers {
@@ -127,10 +127,10 @@ func (conf *DsnetConfig) MustRemovePeer(hostname string) {
 
 	// remove peer from slice, retaining order
 	copy(conf.Peers[peerIndex:], conf.Peers[peerIndex+1:]) // shift left
-	conf.Peers = conf.Peers[:len(conf.Peers)-1] // truncate
+	conf.Peers = conf.Peers[:len(conf.Peers)-1]            // truncate
 }
 
-func (conf DsnetConfig) IPAllocated(IP net.IP) bool {
+func (conf ezwgConfig) IPAllocated(IP net.IP) bool {
 	if IP.Equal(conf.IP) {
 		return true
 	}
@@ -151,7 +151,7 @@ func (conf DsnetConfig) IPAllocated(IP net.IP) bool {
 }
 
 // choose a free IP for a new Peer
-func (conf DsnetConfig) MustAllocateIP() net.IP {
+func (conf ezwgConfig) MustAllocateIP() net.IP {
 	network := conf.Network.IPNet
 	ones, bits := network.Mask.Size()
 	zeros := bits - ones
@@ -178,7 +178,7 @@ func (conf DsnetConfig) MustAllocateIP() net.IP {
 	return net.IP{}
 }
 
-func (conf DsnetConfig) GetWgPeerConfigs() []wgtypes.PeerConfig {
+func (conf ezwgConfig) GetWgPeerConfigs() []wgtypes.PeerConfig {
 	wgPeers := make([]wgtypes.PeerConfig, 0, len(conf.Peers))
 
 	for _, peer := range conf.Peers {

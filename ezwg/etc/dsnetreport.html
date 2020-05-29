@@ -1,5 +1,5 @@
-<!-- This hugo shortcode can be used to render a table from /var/lib/dsnetreport.json if it is copied to the data/ directory -->
-{{ $report := $.Site.Data.dsnetreport }}
+<!-- This hugo shortcode can be used to render a table from /var/lib/ezwgreport.json if it is copied to the data/ directory -->
+{{ $report := $.Site.Data.ezwgreport }}
 
 {{ with $report }}
 <table class="wide">
@@ -48,7 +48,7 @@
 <!-- Could be an error callout -->
 <pre>
     <code>
-        /etc/dsnetreport.json not found or empty
+        /etc/ezwgreport.json not found or empty
     </code>
 </pre>
 {{ end }}

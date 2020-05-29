@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"fmt"
@@ -11,12 +11,12 @@ import (
 func Add() {
 	if len(os.Args) != 3 {
 		// TODO non-red
-		ExitFail("Hostname argument required: dsnet add <hostname>")
+		ExitFail("Hostname argument required: ezwg add <hostname>")
 	}
 
 	// TODO maybe accept flags to avoid prompt and allow programmatic use?
 	// TODO accept existing pubkey
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 
 	hostname := os.Args[2]
 	owner := MustPromptString("owner", true)
@@ -50,7 +50,7 @@ func Add() {
 	ConfigureDevice(conf)
 }
 
-func PrintPeerCfg(peer PeerConfig, conf *DsnetConfig) {
+func PrintPeerCfg(peer PeerConfig, conf *ezwgConfig) {
 	allowedIPsStr := make([]string, len(conf.Networks)+1)
 	allowedIPsStr[0] = conf.Network.String()
 
@@ -61,24 +61,24 @@ func PrintPeerCfg(peer PeerConfig, conf *DsnetConfig) {
 	const peerConf = `[Interface]
 Address = {{ .Peer.IP }}
 PrivateKey={{ .Peer.PrivateKey.Key }}
-{{- if .DsnetConfig.DNS }}
-DNS = {{ .DsnetConfig.DNS }}
+{{- if .ezwgConfig.DNS }}
+DNS = {{ .ezwgConfig.DNS }}
 {{ end }}
 
 [Peer]
-PublicKey={{ .DsnetConfig.PrivateKey.PublicKey.Key }}
+PublicKey={{ .ezwgConfig.PrivateKey.PublicKey.Key }}
 PresharedKey={{ .Peer.PresharedKey.Key }}
-Endpoint={{ .DsnetConfig.ExternalIP }}:{{ .DsnetConfig.ListenPort }}
+Endpoint={{ .ezwgConfig.ExternalIP }}:{{ .ezwgConfig.ListenPort }}
 AllowedIPs={{ .AllowedIPs }}
 PersistentKeepalive={{ .Keepalive }}
 `
 
 	t := template.Must(template.New("peerConf").Parse(peerConf))
 	err := t.Execute(os.Stdout, map[string]interface{}{
-		"Peer":        peer,
-		"DsnetConfig": conf,
-		"Keepalive":   time.Duration(KEEPALIVE).Seconds(),
-		"AllowedIPs":  strings.Join(allowedIPsStr, ","),
+		"Peer":       peer,
+		"ezwgConfig": conf,
+		"Keepalive":  time.Duration(KEEPALIVE).Seconds(),
+		"AllowedIPs": strings.Join(allowedIPsStr, ","),
 	})
 	check(err)
 }

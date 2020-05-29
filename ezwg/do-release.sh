@@ -14,9 +14,9 @@ BUILD_DATE=$(date)
 RELEASE_FILE=RELEASE.md
 
 LDFLAGS="-s -w \
-    -X \"github.com/naggie/dsnet.GIT_COMMIT=$GIT_COMMIT\" \
-    -X \"github.com/naggie/dsnet.VERSION=$VERSION\" \
-    -X \"github.com/naggie/dsnet.BUILD_DATE=$BUILD_DATE\"\
+    -X \"github.com/cirello-io/ezwg.GIT_COMMIT=$GIT_COMMIT\" \
+    -X \"github.com/cirello-io/ezwg.VERSION=$VERSION\" \
+    -X \"github.com/cirello-io/ezwg.BUILD_DATE=$BUILD_DATE\"\
 "
 
 # get release information
@@ -34,17 +34,17 @@ mkdir -p dist
 export GOOS=linux
 export CGO_ENABLED=0
 
-GOARCH=arm GOARM=5 go build -ldflags="$LDFLAGS" cmd/dsnet.go
-# upx -q dsnet
-mv dsnet dist/dsnet-linux-arm5
+GOARCH=arm GOARM=5 go build -ldflags="$LDFLAGS" cmd/ezwg.go
+# upx -q ezwg
+mv ezwg dist/ezwg-linux-arm5
 
-GOARCH=amd64 go build -ldflags="$LDFLAGS" cmd/dsnet.go
-# upx -q dsnet
-mv dsnet dist/dsnet-linux-amd64
+GOARCH=amd64 go build -ldflags="$LDFLAGS" cmd/ezwg.go
+# upx -q ezwg
+mv ezwg dist/ezwg-linux-amd64
 
 hub release create \
     --draft \
-    -a dist/dsnet-linux-arm5#"dsnet linux-arm5" \
-    -a dist/dsnet-linux-amd64#"dsnet linux-amd64" \
+    -a dist/ezwg-linux-arm5#"ezwg linux-arm5" \
+    -a dist/ezwg-linux-amd64#"ezwg linux-amd64" \
     -F $RELEASE_FILE \
     $1

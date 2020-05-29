@@ -1,15 +1,15 @@
-package dsnet
+package ezwg
 
 import (
 	"github.com/vishvananda/netlink"
 )
 
 func Down() {
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 	DelLink(conf)
 }
 
-func DelLink(conf *DsnetConfig) {
+func DelLink(conf *ezwgConfig) {
 	linkAttrs := netlink.NewLinkAttrs()
 	linkAttrs.Name = conf.InterfaceName
 

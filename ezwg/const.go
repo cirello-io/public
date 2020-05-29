@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"time"
@@ -6,11 +6,11 @@ import (
 
 const (
 	// could be overridden in future via env
-	CONFIG_FILE = "/etc/dsnetconfig.json"
+	CONFIG_FILE = "/etc/ezwgconfig.json"
 
 	// these end up in the config file
-	DEFAULT_INTERFACE_NAME = "dsnet"
-	DEFAULT_REPORT_FILE    = "/var/lib/dsnetreport.json"
+	DEFAULT_INTERFACE_NAME = "ezwg"
+	DEFAULT_REPORT_FILE    = "/var/lib/ezwgreport.json"
 	DEFAULT_LISTEN_PORT    = 51820
 
 	// keepalive always configured for clients. Set to a value likely to
@@ -27,7 +27,7 @@ const (
 
 var (
 	// populated with LDFLAGS, see do-release.sh
-	VERSION = "unknown"
+	VERSION    = "unknown"
 	GIT_COMMIT = "unknown"
 	BUILD_DATE = "unknown"
 )

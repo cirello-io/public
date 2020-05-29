@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"os"
@@ -7,10 +7,10 @@ import (
 func Remove() {
 	if len(os.Args) != 3 {
 		// TODO non-red
-		ExitFail("Hostname argument required: dsnet remove <hostname>")
+		ExitFail("Hostname argument required: ezwg remove <hostname>")
 	}
 
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 	hostname := os.Args[2]
 	conf.MustRemovePeer(hostname)
 	ConfirmOrAbort("Do you really want to remove %s?", os.Args[2])

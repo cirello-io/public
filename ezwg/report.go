@@ -1,11 +1,11 @@
-package dsnet
+package ezwg
 
 import (
 	"golang.zx2c4.com/wireguard/wgctrl"
 )
 
 func Report() {
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 
 	wg, err := wgctrl.New()
 	check(err)
@@ -17,7 +17,7 @@ func Report() {
 		ExitFail("Could not retrieve device '%s' (%v)", conf.InterfaceName, err)
 	}
 
-	oldReport := MustLoadDsnetReport()
+	oldReport := MustLoadezwgReport()
 	report := GenerateReport(dev, conf, oldReport)
 	report.MustSave(conf.ReportFile)
 }

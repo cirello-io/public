@@ -1,4 +1,4 @@
-package dsnet
+package ezwg
 
 import (
 	"net"
@@ -7,12 +7,12 @@ import (
 )
 
 func Up() {
-	conf := MustLoadDsnetConfig()
+	conf := MustLoadezwgConfig()
 	CreateLink(conf)
 	ConfigureDevice(conf)
 }
 
-func CreateLink(conf *DsnetConfig) {
+func CreateLink(conf *ezwgConfig) {
 	linkAttrs := netlink.NewLinkAttrs()
 	linkAttrs.Name = conf.InterfaceName
 
