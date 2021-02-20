@@ -2,7 +2,7 @@ language: go
 sudo: required
 go_import_path: cirello.io/pidctl
 go:
-  - "1.13"
+  - "1.16"
 
 env:
   - GO111MODULE=on
